@@ -2,14 +2,6 @@
 <?php
 include 'db.php';
 
-// Simulación de envío de correo (El cuello de botella)
-function simulateEmail($email) {
-    // ESTO ES INTENCIONAL: Simulamos que el servidor de correo es lento
-    // Esto bloquea toda la aplicación por 5 segundos.
-    sleep(5); 
-    return true;
-}
-
 $message = "";
 
 // Lógica de Compra (Monolito)
@@ -21,9 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buy_product_id'])) {
         // 1. Crear Orden en BD
         $stmt = $pdo->prepare("INSERT INTO orders (product_id, customer_email, status) VALUES (?, ?, 'confirmed')");
         $stmt->execute([$product_id, $email]);
-
-        // 2. Enviar Correo (Bloqueante)
-        simulateEmail($email);
 
         // 3. Mostrar Mensaje de Éxito
         $message = "<div class='alert alert-success'>¡Compra exitosa! Correo de confirmación enviado a $email (tardó 5s).</div>";
