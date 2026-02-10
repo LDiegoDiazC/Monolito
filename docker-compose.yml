@@ -17,7 +17,8 @@ services:
 
   db:
     container_name: monolito-db
-    image: mysql:5.7
+    image: mysql:8.0
+    restart: always
     #platform: linux/amd64 descomentar si se ejecuta en M1/M2
     environment:
       MYSQL_ROOT_PASSWORD: root
