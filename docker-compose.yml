@@ -2,11 +2,11 @@
 services:
   app:
     container_name: monolito-ui
-    build: .
+    build: ./monolito
     ports:
       - "8080:80"
     volumes:
-      - ./src:/var/www/html
+      - ./monolito/src:/var/www/html
     environment:
       - DB_HOST=db
       - DB_NAME=ecommerce
@@ -26,6 +26,12 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: password
     volumes:
-      - ./sql:/docker-entrypoint-initdb.d
+      - ./monolito/sql:/docker-entrypoint-initdb.d
     ports:
       - "3306:3306"
+  
+  notifications:
+    container_name: notifications
+    build: ./notification-service
+    ports:
+      - "5000:8080"
