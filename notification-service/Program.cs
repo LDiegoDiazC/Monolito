@@ -7,7 +7,7 @@ var app = builder.Build();
 app.MapGet("/", () => "Notification Service is UP 🚀");
 
 // Endpoint para enviar correos
-app.MapPost("/send-email", async ([FromBody] EmailRequest request) => 
+app.MapPost("/send-email", ([FromBody] EmailRequest request) => 
 {
     // lo que antes hacía sleep en PHP, ahora es un proceso asíncrono no bloqueante.
     Console.WriteLine($"[INFO] Enviando correo a: {request.To}...");
