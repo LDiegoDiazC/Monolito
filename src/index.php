@@ -2,12 +2,13 @@
 <?php
 include 'db.php';
 
-// Simulación de envío de correo (El cuello de botella)
+// Simulación de envío de correo
 function simulateEmail($email) {
-    // ESTO ES INTENCIONAL: Simulamos que el servidor de correo es lento
     // Esto bloquea toda la aplicación por 5 segundos.
     sleep(5); 
     return true;
+    //Con error:
+    //throw new Exception("Error al enviar correo a $email");
 }
 
 $message = "";
@@ -22,7 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buy_product_id'])) {
         $stmt = $pdo->prepare("INSERT INTO orders (product_id, customer_email, status) VALUES (?, ?, 'confirmed')");
         $stmt->execute([$product_id, $email]);
 
-        // 2. Enviar Correo (Bloqueante)
+        // 2. Enviar Correo
+        //Este sera nuestro nuevo microservicio, pero por ahora lo dejamos aquí para simular el proceso.
         simulateEmail($email);
 
         // 3. Mostrar Mensaje de Éxito
