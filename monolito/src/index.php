@@ -18,19 +18,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buy_product_id'])) {
         $orderId = $pdo->lastInsertId();
 
         // 2. Enviar Notificación (Microservicio)
-        $notificationClient = new NotificationClient();
-        $notificationClient->sendEmail($email, $orderId);
+        // $notificationClient = new NotificationClient();
+        // $notificationClient->sendEmail($email, $orderId);
+        // 2. NO CRÍTICO: Notificar (Si esto falla, la vida sigue)
+        try {
+            $notifier = new NotificationClient();
+            $notifier->sendEmailAsync($email, $orderId);
+            
+            // Mensaje de Éxito Total
+            $message = "<div class='alert alert-success'>
+                        ¡Compra #$orderId exitosa! Hemos enviado la confirmación a tu correo.
+                        </div>";
 
-        // 3. Confirmación
+            } catch (Exception $e) {
+                // 3. LA DEGRADACIÓN ELEGANTE
+                // Atrapamos el error del correo AQUÍ, para que NO salte al catch principal
+                
+                // Importante: Loguear el error internamente para que IT lo revise luego
+                error_log("ADVERTENCIA: El envio de correo tardo mas de 2 segundos en la orden #$orderId - " . $e->getMessage());
+
+                // Al usuario le mostramos éxito, pero con una redacción cuidadosa
+                $message = "<div class='alert alert-success'>
+                            ¡Compra #$orderId confirmada correctamente! <br>
+                            <small>Tu orden ya se está procesando. En breve recibirás los detalles en tu correo.</small>
+                            </div>";
+            }
+
+        // 3. Actualizamos el estado de la orden a confirmado (aunque el correo haya fallado, la orden se procesa igual)
         $updateStmt = $pdo->prepare("UPDATE orders SET status = 'confirmed' WHERE id = ?");
         $updateStmt->execute([$orderId]);
 
-        $message = "<div class='alert alert-success'>Orden #$orderId creada y notificada exitosamente.</div>";
+        // $message = "<div class='alert alert-success'>Orden #$orderId creada y notificada exitosamente.</div>";
     } catch (Exception $e) {
-        $message = "<div class='alert alert-warning'>
-                        La compra se realizó, pero hubo un error en la notificación: <br>" 
-                        . $e->getMessage() . 
-                   "</div>";
+        // 4. ERROR CRÍTICO REAL
+        // Solo entramos aquí si falló la Base de Datos (INSERT)
+        $message = "<div class='alert alert-danger'>
+                    Hubo un error al procesar tu pago. No se ha realizado ningún cargo. <br>" 
+                    . $e->getMessage() . 
+                "</div>";
     }
 }
 
