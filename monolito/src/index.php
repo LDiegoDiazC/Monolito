@@ -1,20 +1,8 @@
 <!-- Introducción a Microservicios: Arquitectura y Contenedores -->
 <?php
 include 'db.php';
-<<<<<<< HEAD:src/index.php
-
-// Simulación de envío de correo
-function simulateEmail($email) {
-    // Esto bloquea toda la aplicación por 5 segundos.
-    sleep(5); 
-    return true;
-    //Con error:
-    //throw new Exception("Error al enviar correo a $email");
-}
-=======
 // Importamos la nueva clase cliente
 require_once 'services/NotificationClient.php';
->>>>>>> c11e71d5f51407f88f8df2139e351a738d6e6311:monolito/src/index.php
 
 $message = "";
 
@@ -29,11 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buy_product_id'])) {
         $stmt->execute([$product_id, $email]);
         $orderId = $pdo->lastInsertId();
 
-<<<<<<< HEAD:src/index.php
-        // 2. Enviar Correo
-        //Este sera nuestro nuevo microservicio, pero por ahora lo dejamos aquí para simular el proceso.
-        simulateEmail($email);
-=======
         // 2. Enviar Notificación (Microservicio)
         // $notificationClient = new NotificationClient();
         // $notificationClient->sendEmail($email, $orderId);
