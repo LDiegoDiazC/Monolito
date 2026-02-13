@@ -1,6 +1,7 @@
 <!-- Introducción a Microservicios: Arquitectura y Contenedores -->
 <?php
 include 'db.php';
+<<<<<<< HEAD:src/index.php
 
 // Simulación de envío de correo
 function simulateEmail($email) {
@@ -10,6 +11,10 @@ function simulateEmail($email) {
     //Con error:
     //throw new Exception("Error al enviar correo a $email");
 }
+=======
+// Importamos la nueva clase cliente
+require_once 'services/NotificationClient.php';
+>>>>>>> c11e71d5f51407f88f8df2139e351a738d6e6311:monolito/src/index.php
 
 $message = "";
 
@@ -19,18 +24,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buy_product_id'])) {
     $email = $_POST['email'];
 
     try {
-        // 1. Crear Orden en BD
-        $stmt = $pdo->prepare("INSERT INTO orders (product_id, customer_email, status) VALUES (?, ?, 'confirmed')");
+        // Agregamos status de penndiente y obtenemos el ID de la orden
+        $stmt = $pdo->prepare("INSERT INTO orders (product_id, customer_email, status) VALUES (?, ?, 'pending')");
         $stmt->execute([$product_id, $email]);
+        $orderId = $pdo->lastInsertId();
 
+<<<<<<< HEAD:src/index.php
         // 2. Enviar Correo
         //Este sera nuestro nuevo microservicio, pero por ahora lo dejamos aquí para simular el proceso.
         simulateEmail($email);
+=======
+        // 2. Enviar Notificación (Microservicio)
+        $notificationClient = new NotificationClient();
+        $notificationClient->sendEmail($email, $orderId);
+>>>>>>> c11e71d5f51407f88f8df2139e351a738d6e6311:monolito/src/index.php
 
-        // 3. Mostrar Mensaje de Éxito
-        $message = "<div class='alert alert-success'>¡Compra exitosa! Correo de confirmación enviado a $email (tardó 5s).</div>";
+        // 3. Confirmación
+        $updateStmt = $pdo->prepare("UPDATE orders SET status = 'confirmed' WHERE id = ?");
+        $updateStmt->execute([$orderId]);
+
+        $message = "<div class='alert alert-success'>Orden #$orderId creada y notificada exitosamente.</div>";
     } catch (Exception $e) {
-        $message = "<div class='alert alert-danger'>Error: " . $e->getMessage() . "</div>";
+        $message = "<div class='alert alert-warning'>
+                        La compra se realizó, pero hubo un error en la notificación: <br>" 
+                        . $e->getMessage() . 
+                   "</div>";
     }
 }
 
@@ -48,7 +66,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body class="bg-light">
     <div class="container py-5">
-        <h1 class="mb-4">📦 Ecommerce <small class="text-muted">(Monolito v1.0)</small></h1>
+        <h1 class="mb-4">🛒 Ecommerce <small class="text-muted">(Monolito v2.0)</small></h1>
         
         <?= $message ?>
 

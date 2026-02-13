@@ -1,0 +1,15 @@
+{
+  "service": "NotificationService",
+  "version": "1.0",
+  "method": "POST",
+  "endpoint": "/send-email",
+  "request_body": {
+    "to": "cliente@email.com",
+    "order_id": 123,
+    "subject": "Confirmación de compra"
+  },
+  "response_success": {
+    "status": "Enviado",
+    "timestamp": "2026-02-15T12:00:00Z"
+  }
+}
